@@ -2,16 +2,11 @@ const express = require('express')
 const morgan = require('morgan')
 const db = require('./database')
 const fs = require('fs');
-
 const app = express()
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 const args = require('minimist')(process.argv.slice(2))
-
 const port = args.port || process.env.port || 5000
-
 const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 });
@@ -28,7 +23,6 @@ server.js [options]
             Logs are always written to database.
 --help	Return this message and exit.
 `)
-// If --help or -h, echo help text to STDOUT and exit
 if (args.help || args.h) {
     console.log(help)
     process.exit(0)
@@ -72,91 +66,76 @@ app.use( (req, res, next) => {
   })
 }
 
-// a03 part
-
-app.get("/app/", (req, res, next) => {
-    res.json({"message":"Your API works! (200)"});
-	res.status(200);
-});
-
-/**app.get('/app/', (req, res) => {
-    res.statusCode = 200;
-    res.statusMessage = 'OK';
-    res.writeHead(res.statusCode, { 'Content-Type' : 'text/plain'});
-    res.end(res.statusCode+ ' ' +res.statusMessage)
-});**/
-
-app.get('/app/flip/', (req, res) => {
-    res.statusCode = 200;
-    let aFlip = coinFlip()
-    res.json({flip: aFlip})
-    res.writeHead(res.statusCode, {'Content-Type' : 'application/json'});
-})
-
-
-app.get('/app/flips/:number', (req, res) => {
-    var coins = coinFlips(req.params.number)
-
-    var heads = 0
-    var tails = 0
-    for (var i=0; i<coins.length; i++) {
-        if (coins[i].valueOf() == "heads") {
-            heads ++
-        } else {
-            tails ++
-        }
-    }
-
-    res.json({"raw" : coins, "summary" : {"heads" : heads, "tails" : tails}})
-});
-
-app.get('/app/flip/call/heads', (req, res) => {
-    res.statusCode = 200;
-    let answer = flipACoin('heads')
-    res.send(answer)
-    res.writeHead(res.statusCode, {'Content-Type': 'text/plain'});
-})
-
-app.get('/app/flip/call/tails', (req, res) => {
-    res.statusCode = 200;
-    let answer = flipACoin('tails')
-    res.send(answer)
-    res.writeHead(res.statusCode, {'Content-Type': 'text/plain'});
-})
-
-
+// Default response for any other request
 app.use(function(req, res){
     res.status(404).send('404 NOT FOUND')
 });
 
+// Check endpoint
+app.get('/app/', (req, res) => {
+    // Respond with status 200
+        res.statusCode = 200;
+    // Respond with status message "OK"
+        res.statusMessage = 'OK';
+        res.writeHead(res.statusCode, { 'Content-Type' : 'text/plain' });
+        res.end(res.statusCode+ ' ' +res.statusMessage)
+});
 
-// a02 part
+// Multiple flips endpoint
+app.get('/app/flips/:number', (req, res) => {
+    let num = parseInt(req.params.number);
+    let flips = coinFlips(num);
+    let count = countFlips(flips);
+    let out = {raw: flips, summary: count};
+
+    res.status(200).json(out);
+});
+
+// Single flip endpoint
+app.get('/app/flip/', (req, res) => {
+	const result = coinFlip();
+    const out = {flip: result};
+
+    res.status(200).json(out);
+});
+
+// Guess flip endpoint
+app.get('/app/flip/call/:call', (req, res) => {
+    const call = req.params.call;
+    const out = flipACoin(call);
+
+    res.status(200).json(out);
+});
+
+// Coin funcs
 function coinFlip() {
-    return (Math.floor(Math.random() * 2) == 0) ? 'heads' : 'tails';
-}
-
+    return Math.floor(Math.random() * 2) == 0 ? "heads" : "tails"
+  }
 
 function coinFlips(flips) {
-    const coins = [];    
-    for (let i = 0; i < flips; i++)
-    coins[i] = coinFlip();
-    return coins;
-}
+    const resultArr = new Array(flips);
+    for(var i = 0; i < flips; i++) {
+      resultArr[i] = coinFlip();
+    }
+    return resultArr;
+}  
 
 function countFlips(array) {
-    let head = 0;
-    let tail = 0;
-    for( let i = 0; i < array.length; i++)
-      if(array[i] == "heads")
-        head ++;
-      else
-        tail ++;
-    const count = `{ tails: ${tail}, heads: ${head} }` ;
-    return count;
-}
+    let heads = 0;
+    let tails = 0;
+  
+    for (let i = 0; i < array.length; i++) {
+      if (array[i] == "heads") {
+        heads++;
+      } else {
+        tails++;
+      }
+    }
 
+    return "{ heads: " + heads + ", tails: " + tails + " }";
+  }
 
 function flipACoin(call) {
-    let flip = coinFlip();
-    return {call: call, flip: flip, result: flip == call ? "win" : "lose" };
+    var flip = coinFlip();
+    return {call: call, flip: flip, result: flip == call ? "win" : "lose" }
 }
