@@ -2,7 +2,7 @@
 
 const Database = require('better-sqlite3');
 const newDataBase = new Database('log.db');
-const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='accesslog';`);
+const stmt = newDataBase.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='accesslog';`);
 let row = stmt.get();
 
 if (row === undefined) {
@@ -23,9 +23,9 @@ if (row === undefined) {
                 useragent TEXT
         );`
     
-        db.exec(sqlInit);
+        newDataBase.exec(sqlInit);
 } else {
     console.log('Database exists.')
 }
 
-module.exports = db
+module.exports = newDataBase
