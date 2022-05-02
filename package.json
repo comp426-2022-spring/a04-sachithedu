@@ -1,0 +1,28 @@
+{
+  "name": "a04-sachithedu",
+  "version": "1.0.0",
+  "description": "transactions and errors",
+  "main": "node server.js",
+  "scripts": {
+    "test": "server.js --help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comp426-2022-spring/a04-sachithedu.git"
+  },
+  "author": "sachithedu",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/comp426-2022-spring/a04-sachithedu/issues"
+  },
+  "homepage": "https://github.com/comp426-2022-spring/a04-sachithedu#readme",
+  "dependencies": {
+    "better-sqlite3": "^7.5.1",
+    "curl": "^0.1.4",
+    "errorhandler": "^1.5.1",
+    "express": "^4.18.1",
+    "fs": "^0.0.1-security",
+    "minimist": "^1.2.6",
+    "morgan": "^1.10.0"
+  }
+}
